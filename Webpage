@@ -1,0 +1,313 @@
+import React, { useState, useMemo } from 'react';
+import { 
+  CheckCircle2, Circle, ChevronRight, Layout, Database, 
+  Brain, Rocket, Shield, Terminal, BookOpen, Layers, 
+  Cpu, Activity, Target, Zap
+} from 'lucide-react';
+
+const curriculumData = [
+  {
+    week: 1,
+    title: "Frontend Architecture & Declarative State",
+    icon: <Layout className="w-5 h-5" />,
+    days: [
+      { day: 1, objective: "Next.js Initialization & Project Scaffolding", steps: "Install Node.js. Execute `npx create-next-app@latest aetheros --typescript --tailwind --app`. Configure Windsurf workspace settings.", milestone: "Establishment of the local development environment." },
+      { day: 2, objective: "Component Composition & JSX Syntax", steps: "Deconstruct a static HTML dashboard into isolated React components (<Header>, <Sidebar>, <MainContent>). Instruct Cascade to explain JSX constraints.", milestone: "Transitioning from monolithic HTML to modular UI architecture." },
+      { day: 3, objective: "Unidirectional Data Flow & Props", steps: "Define TypeScript interfaces for component parameters. Pass simulated telemetry data from a parent layout down to child metric cards.", milestone: "Understanding data propagation and strict type definitions." },
+      { day: 4, objective: "State Management via React Hooks", steps: "Implement `useState` to manage interactive elements (dropdowns, dark mode). Replace imperative DOM targeting with declarative state binding.", milestone: "Grasping the React Virtual DOM lifecycle." },
+      { day: 5, objective: "Server vs. Client Components (RSCs)", steps: "Refactor to strictly isolate Client Components (`\"use client\"`). Move all interactivity to the leaf nodes of the component tree.", milestone: "Mastering the Next.js rendering paradigm for optimal performance." },
+      { day: 6, objective: "File-System Routing & Dynamic Segments", steps: "Create nested routes (/dashboard, /agents). Implement persistent navigation layouts using app/layout.tsx.", milestone: "Utilizing server-side routing and handling dynamic URLs." },
+      { day: 7, objective: "Data Fetching Basics & Vercel Deployment", steps: "Simulate an asynchronous data fetch within a Server Component. Push repository to GitHub and trigger Vercel deployment.", milestone: "End-to-end understanding of the Next.js CI/CD pipeline." }
+    ]
+  },
+  {
+    week: 2,
+    title: "Rapid Prototyping & Generative Interfaces",
+    icon: <Layers className="w-5 h-5" />,
+    days: [
+      { day: 8, objective: "Utility-First Styling with Tailwind CSS", steps: "Convert legacy CSS to Tailwind utilities. Understand responsive modifiers (md:, lg:) and flexbox/grid layouts.", milestone: "Rapid, context-free styling directly within components." },
+      { day: 9, objective: "Prompt Engineering for v0.dev", steps: "Prompt v0.dev to generate the core AetherOS dashboard. Use aesthetic modifiers (industrial, data-dense, dark mode).", milestone: "Translating UX requirements into effective natural language prompts." },
+      { day: 10, objective: "Integrating Shadcn UI Primitives", steps: "Execute `npx shadcn-ui@latest init`. Import generated v0.dev components into the local repository.", milestone: "Establishing a customizable, accessible design system." },
+      { day: 11, objective: "Constructing Complex Layouts", steps: "Stitch atomic components together to build the primary command center. Implement responsive sidebars and data grids.", milestone: "Building scalable UI architectures for dense data." },
+      { day: 12, objective: "Interactive Modals and Form State", steps: "Implement accessible forms for agent configuration using Shadcn UI. Manage state/validation via hooks.", milestone: "Handling user input while maintaining accessibility standards." },
+      { day: 13, objective: "Theming, Dark Mode, and CSS Variables", steps: "Configure `next-themes`. Map AetherOS brand colors to CSS variables in globals.css.", milestone: "Implementing persistent, system-aware theming." },
+      { day: 14, objective: "UI Codebase Refactoring via Windsurf", steps: "Instruct Windsurf to clean up v0.dev output, extract micro-components, and enforce strict TypeScript interfaces.", milestone: "Sanitizing architecture to prevent technical debt." }
+    ]
+  },
+  {
+    week: 3,
+    title: "Data Persistence & Multi-Tenant Security",
+    icon: <Database className="w-5 h-5" />,
+    days: [
+      { day: 15, objective: "Relational Database Fundamentals", steps: "Study PostgreSQL concepts. Design schema: users, organizations, agents, telemetry_logs with keys.", milestone: "Transitioning mental models to relational data integrity." },
+      { day: 16, objective: "Supabase Project Initialization", steps: "Provision Supabase project. Create tables via SQL. Pull schema locally using Supabase CLI.", milestone: "Establishing remote DB and syncing with local environment." },
+      { day: 17, objective: "Server-Side Authentication Setup", steps: "Install `@supabase/ssr`. Configure Next.js server actions for registration, login, and secure cookie sessions.", milestone: "Implementing modern, secure session handling." },
+      { day: 18, objective: "Building the Authentication Interface", steps: "Utilize Shadcn UI for login/registration flows. Wire components to server-side Auth endpoints.", milestone: "Managing auth state across the frontend." },
+      { day: 19, objective: "Implementing Row Level Security (RLS)", steps: "Write PostgreSQL RLS policies ensuring users only access data associated with their organization_id.", milestone: "Securing the DB against cross-tenant exposure." },
+      { day: 20, objective: "Secure Data Fetching and Mutations", steps: "Create Server Actions to safely insert/retrieve configurations. Opt out of Next.js caching for tenant data.", milestone: "Executing secure database transactions." },
+      { day: 21, objective: "Route Protection and Middleware", steps: "Implement Next.js middleware. Use `supabase.auth.getClaims()` to verify sessions and redirect.", milestone: "Hardening routes and centralized access control." }
+    ]
+  },
+  {
+    week: 4,
+    title: "Vercel AI SDK & Claude 3.5 Sonnet",
+    icon: <Brain className="w-5 h-5" />,
+    days: [
+      { day: 22, objective: "LLM Mechanics and Prompt Engineering", steps: "Study tokenization, context windows, temperature, and effective system prompts.", milestone: "Understanding statistical AI and output guidance." },
+      { day: 23, objective: "API Integration via `generateText`", steps: "Install `ai` and `@ai-sdk/anthropic`. Construct API route sending prompts to Claude.", milestone: "Executing deterministic AI text generation requests." },
+      { day: 24, objective: "Real-Time Streaming", steps: "Implement conversational interface using `streamText` (server) and `useChat` (client).", milestone: "Managing real-time data to overcome HTTP timeouts." },
+      { day: 25, objective: "Enforcing Structured Outputs", steps: "Force LLM to output JSON conforming to Zod schema via `useObject`.", milestone: "Converting probabilistic text into deterministic software inputs." },
+      { day: 26, objective: "Context Window Management", steps: "Persist conversation histories in Supabase, retrieving them to hydrate the LLM context window.", milestone: "Managing context limits and token costs." },
+      { day: 27, objective: "Generative UI and RSC Streaming", steps: "Utilize `streamUI` to stream dynamic React components directly from LLM response.", milestone: "Blending rendering with AI generation for deep interactivity." },
+      { day: 28, objective: "Telemetry and Vercel AI Gateway", steps: "Route Anthropic requests through Vercel AI Gateway. Monitor token usage and rate limits.", milestone: "Hardening AI infrastructure for production reliability." }
+    ]
+  },
+  {
+    week: 5,
+    title: "Knowledge Retrieval & RAG Architecture",
+    icon: <BookOpen className="w-5 h-5" />,
+    days: [
+      { day: 29, objective: "Vector Mathematics and Semantic Similarity", steps: "Study high-dimensional vector spaces and how text converts to numerical arrays (embeddings).", milestone: "Comprehending mathematics of semantic search." },
+      { day: 30, objective: "Database Preparation via `pgvector`", steps: "Enable pgvector in Supabase. Create table with `vector` columns for embeddings.", milestone: "Configuring database for similarity operations." },
+      { day: 31, objective: "Text Ingestion and Chunking Algorithms", steps: "Build Node.js utility to ingest manuals/codebases and split into optimal, overlapping chunks.", milestone: "Preparing unstructured data for embeddings." },
+      { day: 32, objective: "Generating High-Dimensional Embeddings", steps: "Utilize embedding model (e.g., text-embedding-3-small) to generate vectors for chunks.", milestone: "Translating text into vector space." },
+      { day: 33, objective: "Executing Vector Similarity Searches", steps: "Write custom PostgreSQL function using cosine similarity to query pgvector index.", milestone: "Executing high-speed spatial nearest-neighbor searches." },
+      { day: 34, objective: "Orchestrating the Full RAG Pipeline", steps: "Wire pipeline: Query -> Embed -> Search pgvector -> Retrieve -> Inject to Prompt -> Generate.", milestone: "Establishing end-to-end RAG architecture." },
+      { day: 35, objective: "Advanced RAG: Hybrid Search and Eval", steps: "Implement hybrid search (keyword + vector). Refine chunking to minimize hallucinations.", milestone: "Fine-tuning knowledge retrieval for enterprise accuracy." }
+    ]
+  },
+  {
+    week: 6,
+    title: "Multi-Step Tools & Autonomous Agents",
+    icon: <Terminal className="w-5 h-5" />,
+    days: [
+      { day: 36, objective: "Defining Tool Schemas and Execution", steps: "Define custom tools in `generateText`. Type `inputSchema` rigorously using Zod.", milestone: "Teaching LLM to format responses for code execution." },
+      { day: 37, objective: "Intercepting Single Tool Calls", steps: "Implement tool querying Supabase for live metrics. Allow LLM to invoke based on prompts.", milestone: "Bridging probabilistic reasoning and deterministic APIs." },
+      { day: 38, objective: "Multi-Step Tool Orchestration", steps: "Configure `maxSteps`. Build sequence: LLM calls tool, evaluates data, calls another tool.", milestone: "Implementing autonomous chains of thought." },
+      { day: 39, objective: "Parallel Execution and Tool Streaming", steps: "Enable parallel tools. Stream execution statuses back to UI in real-time.", milestone: "Optimizing latency and providing UI transparency into agent thought." },
+      { day: 40, objective: "The `ToolLoopAgent` Architecture", steps: "Implement pattern combining deterministic branching with LLM-driven decisions.", milestone: "Designing reliable guardrails around AI models." },
+      { day: 41, objective: "Advanced Interactions: Computer Use", steps: "Explore Anthropic Computer Use. Allow agent to read files or interact with sandboxes.", milestone: "Extending agent capabilities into deep systemic interaction." },
+      { day: 42, objective: "Error Recovery and Self-Correction", steps: "Build feedback loops. Instruct agent to catch tool errors and retry with adjusted parameters.", milestone: "Enhancing robustness and fault-tolerance of operations." }
+    ]
+  },
+  {
+    week: 7,
+    title: "Architecting Distributed Intelligence",
+    icon: <Rocket className="w-5 h-5" />,
+    days: [
+      { day: 43, objective: "Finalizing the Distributed Schema", steps: "Optimize Supabase schema to support simulated grid devices across organizational tenants.", milestone: "Architecting data layer for massive scale and isolation." },
+      { day: 44, objective: "Defining Specialized Agent Personas", steps: "Create distinct AI personas (e.g., Diagnostic Agent, Optimization Agent).", milestone: "Segmenting complex tasks into specialized AI roles." },
+      { day: 45, objective: "Durable Execution via Vercel Workflows", steps: "Implement Workflows to handle long-running agent tasks exceeding 60s HTTP timeouts.", milestone: "Managing resilient background processes." },
+      { day: 46, objective: "Multi-Agent Collaboration Protocols", steps: "Build message delivery system for agents to pass structured JSON to one another.", milestone: "Establishing communication/consensus between entities." },
+      { day: 47, objective: "Hydrating Agent Contexts", steps: "Develop workspace hydration to inject system state/schema into agent memory on boot.", milestone: "Providing agents an accurate 'view of the world'." },
+      { day: 48, objective: "Designing Orchestration Command Center", steps: "Build dashboard visualizing agent activity, tool invocations, and system health.", milestone: "Translating orchestration loops into actionable UI." },
+      { day: 49, objective: "Human-in-the-Loop Safeguards", steps: "Implement approval gates via Workflows where destructive actions require manual authorization.", milestone: "Enforcing safety and strict human control over AI." }
+    ]
+  },
+  {
+    week: 8,
+    title: "Production Optimization & Deployment",
+    icon: <Shield className="w-5 h-5" />,
+    days: [
+      { day: 50, objective: "Prompt Caching and Cost Optimization", steps: "Configure `cacheControl: { type: 'ephemeral' }` to reduce latency and API costs.", milestone: "Engineering the AI layer for financial viability." },
+      { day: 51, objective: "Telemetry and Deep Observability", steps: "Analyze Vercel AI Gateway metrics. Log token usage per tenant, tool failure rates.", milestone: "Gaining deep operational visibility into AI performance." },
+      { day: 52, objective: "Security Hardening and Injection Prevention", steps: "Audit RLS policies. Implement prompt injection detection to sanitize user inputs.", milestone: "Protecting platform against adversarial attacks/breaches." },
+      { day: 53, objective: "Systematic AI Evaluation (Evals)", steps: "Write unit tests for API routes. Implement frameworks to systematically grade LLM outputs.", milestone: "Transitioning to rigorous automated QA for AI models." },
+      { day: 54, objective: "CI/CD Pipeline Integration", steps: "Establish GitHub Actions to auto-execute linters, type checks, and tests on commit.", milestone: "Automating software deployment lifecycle." },
+      { day: 55, objective: "Production Deployment to Vercel", steps: "Link GitHub to Vercel. Configure env variables, Supabase keys, and assign domains.", milestone: "Launching AetherOS globally on edge infrastructure." },
+      { day: 56, objective: "Final Architectural Audit", steps: "Conduct end-to-end review of the codebase. Benchmark against SaaS reference models.", milestone: "Finalizing transition to Full-Stack AI Engineer." }
+    ]
+  }
+];
+
+// Harsh, Pilani-style mentor quotes
+const mentorQuotes = [
+  "BITSians don't watch tutorials. We read documentation, break things, and rebuild them stronger.",
+  "If you're copy-pasting code without understanding the underlying state mechanics, you're a typist, not an engineer.",
+  "Windsurf is an exoskeleton, not a wheelchair. You must architect the solution; the AI just types faster.",
+  "Are you struggling with Server Components? Good. Discomfort is the prerequisite for engineering mastery.",
+  "Don't tell me what your app is supposed to do. Show me the deployment link.",
+  "Technical debt is a tax levied on the lazy. Enforce strict TypeScript interfaces today, or bleed tomorrow."
+];
+
+export default function App() {
+  const [completedDays, setCompletedDays] = useState(new Set());
+  const [activeWeek, setActiveWeek] = useState(1);
+  const [quoteIndex, setQuoteIndex] = useState(Math.floor(Math.random() * mentorQuotes.length));
+
+  const toggleDay = (dayNum) => {
+    setCompletedDays(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dayNum)) {
+        newSet.delete(dayNum);
+      } else {
+        newSet.add(dayNum);
+        // Change quote randomly on completion
+        setQuoteIndex(Math.floor(Math.random() * mentorQuotes.length));
+      }
+      return newSet;
+    });
+  };
+
+  const totalDays = 56;
+  const progressPercentage = Math.round((completedDays.size / totalDays) * 100);
+
+  const activeWeekData = curriculumData.find(w => w.week === activeWeek);
+
+  const weekProgress = (weekNum) => {
+    const weekDays = curriculumData.find(w => w.week === weekNum)?.days || [];
+    const completedInWeek = weekDays.filter(d => completedDays.has(d.day)).length;
+    return Math.round((completedInWeek / weekDays.length) * 100);
+  };
+
+  return (
+    <div className="flex h-screen bg-neutral-950 text-neutral-200 font-sans overflow-hidden">
+      
+      {/* Sidebar */}
+      <div className="w-80 bg-neutral-900 border-r border-neutral-800 flex flex-col">
+        <div className="p-6 border-b border-neutral-800">
+          <div className="flex items-center gap-2 mb-2">
+            <Cpu className="w-6 h-6 text-emerald-500" />
+            <h1 className="text-xl font-bold tracking-tight text-white">AetherOS Core</h1>
+          </div>
+          <p className="text-xs text-neutral-400 font-mono tracking-wider uppercase mb-4">Engineering Protocol // BITS Pilani</p>
+          
+          {/* Overall Progress */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-neutral-400">System Integration</span>
+              <span className="font-mono text-emerald-500">{progressPercentage}%</span>
+            </div>
+            <div className="h-2 w-full bg-neutral-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-emerald-500 transition-all duration-500 ease-out"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-1">
+          {curriculumData.map((week) => {
+            const isActive = activeWeek === week.week;
+            const progress = weekProgress(week.week);
+            const isCompleted = progress === 100;
+            
+            return (
+              <button
+                key={week.week}
+                onClick={() => setActiveWeek(week.week)}
+                className={`w-full text-left flex items-center gap-3 p-3 rounded-lg transition-colors
+                  ${isActive ? 'bg-neutral-800 text-white' : 'hover:bg-neutral-800/50 text-neutral-400'}
+                `}
+              >
+                <div className={`p-2 rounded-md ${isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-neutral-800'}`}>
+                  {week.icon}
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <div className="text-sm font-semibold truncate">Week {week.week}</div>
+                  <div className="text-xs truncate opacity-70">{week.title}</div>
+                </div>
+                {isCompleted ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                ) : (
+                  <div className="text-xs font-mono text-neutral-500">{progress}%</div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#0a0a0a]">
+        
+        {/* Header / Mentor Console */}
+        <div className="p-6 border-b border-neutral-800 bg-neutral-900/50">
+          <div className="max-w-4xl mx-auto flex gap-4 items-start">
+            <div className="p-3 bg-neutral-800 rounded-lg border border-neutral-700 shadow-inner">
+              <Zap className="w-6 h-6 text-yellow-500" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-neutral-300 uppercase tracking-widest mb-1 flex items-center gap-2">
+                <Target className="w-4 h-4" /> Mentor's Console
+              </h2>
+              <p className="text-emerald-400/90 font-mono text-sm">
+                {'>'} {mentorQuotes[quoteIndex]}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Week Detail View */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-10">
+          <div className="max-w-4xl mx-auto">
+            
+            <div className="mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-mono font-semibold mb-4 border border-emerald-500/20">
+                MODULE 0{activeWeek}
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-2">{activeWeekData.title}</h2>
+              <div className="flex items-center gap-4 text-sm text-neutral-400">
+                <Activity className="w-4 h-4" />
+                <span>7 Operational Days</span>
+                <span>•</span>
+                <span>{weekProgress(activeWeek)}% Module Completion</span>
+              </div>
+            </div>
+
+            <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-neutral-800 before:to-transparent">
+              {activeWeekData.days.map((day, idx) => {
+                const isDone = completedDays.has(day.day);
+                
+                return (
+                  <div key={day.day} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    
+                    {/* Timeline dot */}
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-[#0a0a0a] bg-neutral-900 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
+                      {isDone ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                      ) : (
+                        <span className="text-xs font-mono text-neutral-500 group-hover:text-neutral-300 transition-colors">{day.day}</span>
+                      )}
+                    </div>
+
+                    {/* Card */}
+                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-neutral-800 bg-neutral-900/80 hover:bg-neutral-900 transition-all cursor-pointer hover:border-neutral-700 shadow-sm"
+                         onClick={() => toggleDay(day.day)}>
+                      
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className={`font-semibold text-lg ${isDone ? 'text-neutral-400 line-through decoration-emerald-500/50' : 'text-neutral-100'}`}>
+                          {day.objective}
+                        </h3>
+                        <button className={`shrink-0 ml-4 rounded-md p-1 transition-colors ${isDone ? 'text-emerald-500 bg-emerald-500/10' : 'text-neutral-500 hover:text-white bg-neutral-800'}`}>
+                          {isDone ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+                        </button>
+                      </div>
+
+                      <div className={`space-y-3 ${isDone ? 'opacity-50' : 'opacity-100'}`}>
+                        <div className="bg-black/30 rounded p-3 text-sm text-neutral-300 font-mono leading-relaxed border border-neutral-800/50">
+                          <span className="text-emerald-500/70 mr-2">$</span>
+                          {day.steps}
+                        </div>
+                        
+                        <div className="flex gap-2 items-start text-xs text-neutral-400 bg-neutral-800/30 p-2 rounded">
+                          <ChevronRight className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <span><strong className="text-neutral-300">Milestone:</strong> {day.milestone}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* End of week padding */}
+            <div className="h-12"></div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
