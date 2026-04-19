@@ -25,12 +25,12 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // Dynamic Icon Wrapper for CDN compatibility
+        // FIX 1: Safely inject icons so React doesn't crash when state changes
         const Icon = ({ name, className }) => {
-            useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
-            });
-            return <i data-lucide={name} className={className}></i>;
+            const iconSvg = window.lucide && window.lucide.icons[name] 
+                ? window.lucide.icons[name].toSvg({ class: className }) 
+                : '';
+            return <span className="inline-flex items-center justify-center" dangerouslySetInnerHTML={{ __html: iconSvg }} />;
         };
 
         const curriculumData = [
@@ -94,7 +94,16 @@
         ];
 
         function App() {
-            const [completedDays, setCompletedDays] = useState(new Set());
+            // FIX 2: Load and Save from Local Storage
+            const [completedDays, setCompletedDays] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('aetheros_progress');
+                    if (saved) return new Set(JSON.parse(saved));
+                } catch (e) {
+                    console.error("Failed to load progress");
+                }
+                return new Set();
+            });
             const [activeWeek, setActiveWeek] = useState(1);
             const [quoteIndex, setQuoteIndex] = useState(0);
 
@@ -107,12 +116,14 @@
                         newSet.add(dayNum);
                         setQuoteIndex(Math.floor(Math.random() * mentorQuotes.length));
                     }
+                    // Save to browser immediately
+                    localStorage.setItem('aetheros_progress', JSON.stringify(Array.from(newSet)));
                     return newSet;
                 });
             };
 
             const activeWeekData = curriculumData.find(w => w.week === activeWeek);
-            const totalDays = 28; // Currently showing 4 weeks for brevity, expandable to 8
+            const totalDays = 28; 
             const progressPercentage = Math.round((completedDays.size / totalDays) * 100);
 
             const weekProgress = (weekNum) => {
@@ -257,7 +268,7 @@
                                     })}
                                 </div>
                                 
-                                <div className="h-20"></div> {/* Bottom Padding */}
+                                <div className="h-20"></div>
                             </div>
                         </div>
                     </div>
